@@ -27,7 +27,7 @@ from .pipelines_ootd.unet_vton_2d_condition import UNetVton2DConditionModel
 
 class OOTDiffusion:
 
-    def __init__(self, root: str, model_type: str = "hd"):
+    def __init__(self, root: str, model_type: str = "hd", clip_path: str = 'openai/clip-vit-large-patch14'):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.torch_dtype = torch.float32 if self.device == "cpu" else torch.float16
 
@@ -38,7 +38,8 @@ class OOTDiffusion:
 
         self.repo_root = root
 
-        VIT_PATH = f"openai/clip-vit-large-patch14"
+        # VIT_PATH = f"D:\Projects\clip-vit-large-patch14"
+        VIT_PATH = clip_path
         MODEL_PATH = Path(root) / "checkpoints" / "ootd"
         if model_type == "hd":
             UNET_PATH = MODEL_PATH / "ootd_hd" / "checkpoint-36000"
