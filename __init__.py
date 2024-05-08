@@ -31,8 +31,6 @@ class LoadOOTDPipeline:
         return {
             "required": {
                 "type": (["Half body", "Full body"],),
-                "OOTD_path": ("STRING", {"default": "models/OOTDiffusion"}),
-                "clip_path": ("STRING", {"default": "models/CLIP"}),
             }
         }
 
@@ -43,7 +41,7 @@ class LoadOOTDPipeline:
     CATEGORY = "OOTD"
 
     @staticmethod
-    def load_impl(type, OOTD_path, clip_path):
+    def load_impl(type):
         if type == "Half body":
             type = "hd"
         elif type == "Full body":
@@ -52,12 +50,10 @@ class LoadOOTDPipeline:
             raise ValueError(
                 f"unknown input type {type} must be 'Half body' or 'Full body'"
             )
-        if not os.path.isdir(OOTD_path):
-            raise ValueError(f"input path {OOTD_path} is not a directory")
-        return OOTDiffusion(OOTD_path, model_type=type, clip_path=clip_path)
+        return OOTDiffusion(model_type=type)
 
-    def load(self, type, OOTD_path, clip_path):
-        return (self.load_impl(type, OOTD_path, clip_path),)
+    def load(self, type):
+        return (self.load_impl(type),)
 
 
 class LoadOOTDPipelineHub(LoadOOTDPipeline):

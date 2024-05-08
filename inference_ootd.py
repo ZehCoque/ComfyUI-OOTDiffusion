@@ -27,7 +27,7 @@ from .pipelines_ootd.unet_vton_2d_condition import UNetVton2DConditionModel
 
 class OOTDiffusion:
 
-    def __init__(self, root: str, model_type: str = "hd", clip_path: str = 'openai/clip-vit-large-patch14'):
+    def __init__(self, model_type: str = "hd"):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.torch_dtype = torch.float32 if self.device == "cpu" else torch.float16
 
@@ -36,28 +36,29 @@ class OOTDiffusion:
 
         self.model_type = model_type
 
-        self.repo_root = root
+        root = Path(__file__).parent / "models"
 
-        # VIT_PATH = f"D:\Projects\clip-vit-large-patch14"
-        VIT_PATH = clip_path
-        MODEL_PATH = Path(root) / "checkpoints" / "ootd"
+        self.repo_root = Path(__file__).parent
+
+        VIT_PATH = Path(root) / "clip-vit-large-patch14"
+        MODEL_PATH = Path(root) / "OOTDiffusion" / "checkpoints"
         if model_type == "hd":
-            UNET_PATH = MODEL_PATH / "ootd_hd" / "checkpoint-36000"
+            UNET_PATH = MODEL_PATH / "ootd" / "ootd_hd" / "checkpoint-36000"
         else:
-            UNET_PATH = MODEL_PATH / "ootd_dc" / "checkpoint-36000"
+            UNET_PATH = MODEL_PATH / "ootd" / "ootd_dc" / "checkpoint-36000"
 
         atr_model_path = (
-            Path(root) / "checkpoints/humanparsing/parsing_atr.onnx"
+            Path(MODEL_PATH) / "humanparsing"  / "parsing_atr.onnx"
         )
         lip_model_path = (
-            Path(root) / "checkpoints/humanparsing/parsing_lip.onnx"
+            Path(MODEL_PATH) / "humanparsing"  / "parsing_lip.onnx"
         )
         self.parsing_model = Parsing(
             atr_model_path=str(atr_model_path),
             lip_model_path=str(lip_model_path),
         )
         body_pose_model_path = (
-            Path(root) / "checkpoints/openpose/ckpts/body_pose_model.pth"
+            Path(MODEL_PATH) / "openpose" / "ckpts" / "body_pose_model.pth"
         )
         self.openpose_model = OpenPose(
             str(body_pose_model_path),
@@ -77,11 +78,11 @@ class OOTDiffusion:
             use_safetensors=True,
         )
         self.pipe = OotdPipeline.from_pretrained(
-            MODEL_PATH,
+            MODEL_PATH / "ootd",
             unet_garm=unet_garm,
             unet_vton=unet_vton,
             vae=AutoencoderKL.from_pretrained(
-                f"{MODEL_PATH}/vae",
+                MODEL_PATH / "ootd" / "vae",
                 torch_dtype=self.torch_dtype,
             ),
             torch_dtype=self.torch_dtype,
